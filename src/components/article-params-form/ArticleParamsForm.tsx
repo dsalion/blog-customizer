@@ -2,7 +2,7 @@ import { ArrowButton } from 'src/ui/arrow-button';
 import { Button } from 'src/ui/button';
 
 import styles from './ArticleParamsForm.module.scss';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Text } from 'src/ui/text';
 import {
 	fontFamilyOptions,
@@ -23,6 +23,31 @@ type props = {
 
 export const ArticleParamsForm = ({ getpreferences }: props) => {
 	const [isOpen, setIsOpen] = useState(false);
+	const formRef = useRef<HTMLElement | null>(null);
+
+	useEffect(() => {
+		if (!isOpen) return;
+
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.key === 'Escape') {
+				setIsOpen(false);
+			}
+		};
+
+		const handleClickOutside = (event: MouseEvent) => {
+			if (formRef.current && !formRef.current.contains(event.target as Node)) {
+				setIsOpen(false);
+			}
+		};
+
+		document.addEventListener('keydown', handleKeyDown);
+		document.addEventListener('mousedown', handleClickOutside);
+
+		return () => {
+			document.removeEventListener('keydown', handleKeyDown);
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, [isOpen]);
 	const handlerOpen = () => {
 		setIsOpen(!isOpen);
 	};
@@ -78,6 +103,7 @@ export const ArticleParamsForm = ({ getpreferences }: props) => {
 		<>
 			<ArrowButton isOpen={isOpen} onClick={handlerOpen} />
 			<aside
+				ref={formRef}
 				className={`${styles.container} ${
 					isOpen ? styles.container_open : ''
 				}`}>
