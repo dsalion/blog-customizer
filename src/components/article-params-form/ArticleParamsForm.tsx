@@ -9,12 +9,19 @@ import {
 	OptionType,
 	fontSizeOptions,
 	fontColors,
+	backgroundColors,
+	contentWidthArr,
+	defaultArticleState,
 } from 'src/constants/articleProps';
 import { Select } from 'src/ui/select';
 import { RadioGroup } from 'src/ui/radio-group';
 import { Separator } from 'src/ui/separator';
+import type { ArticleStateType } from 'src/constants/articleProps';
+type props = {
+	getpreferences: (data: ArticleStateType) => void;
+};
 
-export const ArticleParamsForm = () => {
+export const ArticleParamsForm = ({ getpreferences }: props) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const handlerOpen = () => {
 		setIsOpen(!isOpen);
@@ -24,17 +31,47 @@ export const ArticleParamsForm = () => {
 		fontFamilyOptions[0]
 	);
 
-	const [selectedFontSize, setSelectedFontSize] = useState(fontSizeOptions[0]);
-
 	const handleFontFamilyChange = (option: OptionType) => {
 		setSelectedFontFamily(option);
 	};
 
-	const [selectedBackgroundColor, setSelectedBackgroundColor] = useState(
-		fontColors[0]
-	);
+	const [selectedFontSize, setSelectedFontSize] = useState(fontSizeOptions[0]);
+
+	const handleFontSizeChange = (option: OptionType) => {
+		setSelectedFontSize(option);
+	};
+
+	const [selectedFontColor, setSelectedFontColor] = useState(fontColors[0]);
 	const handleFontColorChange = (option: OptionType) => {
+		setSelectedFontColor(option);
+	};
+
+	const [selectedBackgroundColor, setSelectedBackgroundColor] = useState(
+		backgroundColors[0]
+	);
+	const handleBackgroundColorChange = (option: OptionType) => {
 		setSelectedBackgroundColor(option);
+	};
+
+	const [selectedContentWidth, setSelectedCOntentWidth] = useState(
+		contentWidthArr[0]
+	);
+	const handleContentWidthChange = (option: OptionType) => {
+		setSelectedCOntentWidth(option);
+	};
+
+	const sendPreferences = () => {
+		event?.preventDefault();
+		getpreferences({
+			fontFamilyOption: selectedFontFamily,
+			fontSizeOption: selectedFontSize,
+			fontColor: selectedFontColor,
+			backgroundColor: selectedBackgroundColor,
+			contentWidth: selectedContentWidth,
+		});
+	};
+	const resetPreferences = () => {
+		getpreferences(defaultArticleState);
 	};
 
 	return (
@@ -57,20 +94,42 @@ export const ArticleParamsForm = () => {
 					<RadioGroup
 						options={fontSizeOptions}
 						selected={selectedFontSize}
-						onChange={setSelectedFontSize}
+						onChange={handleFontSizeChange}
 						name={'fontSize'}
 						title={'Размер шрифта'}
 					/>
 					<Select
 						options={fontColors}
-						selected={selectedBackgroundColor}
+						selected={selectedFontColor}
 						onChange={handleFontColorChange}
 						title={'Цвет шрифта'}
 					/>
 					<Separator />
+					<Select
+						options={backgroundColors}
+						selected={selectedBackgroundColor}
+						onChange={handleBackgroundColorChange}
+						title={'Цвет фона'}
+					/>
+					<Select
+						options={contentWidthArr}
+						selected={selectedContentWidth}
+						onChange={handleContentWidthChange}
+						title={'Ширина контента'}
+					/>
 					<div className={styles.bottomContainer}>
-						<Button title='Сбросить' htmlType='reset' type='clear' />
-						<Button title='Применить' htmlType='submit' type='apply' />
+						<Button
+							title='Сбросить'
+							htmlType='reset'
+							type='clear'
+							onClick={resetPreferences}
+						/>
+						<Button
+							title='Применить'
+							htmlType='submit'
+							type='apply'
+							onClick={sendPreferences}
+						/>
 					</div>
 				</form>
 			</aside>
