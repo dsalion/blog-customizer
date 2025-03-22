@@ -2,11 +2,10 @@ import { ArrowButton } from 'src/ui/arrow-button';
 import { Button } from 'src/ui/button';
 
 import styles from './ArticleParamsForm.module.scss';
-import { useEffect, useRef, useState } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 import { Text } from 'src/ui/text';
 import {
 	fontFamilyOptions,
-	OptionType,
 	fontSizeOptions,
 	fontColors,
 	backgroundColors,
@@ -17,11 +16,12 @@ import { Select } from 'src/ui/select';
 import { RadioGroup } from 'src/ui/radio-group';
 import { Separator } from 'src/ui/separator';
 import type { ArticleStateType } from 'src/constants/articleProps';
+import clsx from 'clsx';
 type props = {
-	getpreferences: (data: ArticleStateType) => void;
+	setPreferences: (data: ArticleStateType) => void;
 };
 
-export const ArticleParamsForm = ({ getpreferences }: props) => {
+export const ArticleParamsForm = ({ setPreferences }: props) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const formRef = useRef<HTMLElement | null>(null);
 
@@ -48,46 +48,34 @@ export const ArticleParamsForm = ({ getpreferences }: props) => {
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
 	}, [isOpen]);
+
 	const handlerOpen = () => {
 		setIsOpen(!isOpen);
 	};
 
 	const [selectedFontFamily, setSelectedFontFamily] = useState(
-		fontFamilyOptions[0]
+		defaultArticleState.fontFamilyOption
 	);
 
-	const handleFontFamilyChange = (option: OptionType) => {
-		setSelectedFontFamily(option);
-	};
+	const [selectedFontSize, setSelectedFontSize] = useState(
+		defaultArticleState.fontSizeOption
+	);
 
-	const [selectedFontSize, setSelectedFontSize] = useState(fontSizeOptions[0]);
-
-	const handleFontSizeChange = (option: OptionType) => {
-		setSelectedFontSize(option);
-	};
-
-	const [selectedFontColor, setSelectedFontColor] = useState(fontColors[0]);
-	const handleFontColorChange = (option: OptionType) => {
-		setSelectedFontColor(option);
-	};
+	const [selectedFontColor, setSelectedFontColor] = useState(
+		defaultArticleState.fontColor
+	);
 
 	const [selectedBackgroundColor, setSelectedBackgroundColor] = useState(
-		backgroundColors[0]
+		defaultArticleState.backgroundColor
 	);
-	const handleBackgroundColorChange = (option: OptionType) => {
-		setSelectedBackgroundColor(option);
-	};
 
-	const [selectedContentWidth, setSelectedCOntentWidth] = useState(
-		contentWidthArr[0]
+	const [selectedContentWidth, setSelectedContentWidth] = useState(
+		defaultArticleState.contentWidth
 	);
-	const handleContentWidthChange = (option: OptionType) => {
-		setSelectedCOntentWidth(option);
-	};
 
-	const sendPreferences = () => {
-		event?.preventDefault();
-		getpreferences({
+	const sendPreferences = (event: FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		setPreferences({
 			fontFamilyOption: selectedFontFamily,
 			fontSizeOption: selectedFontSize,
 			fontColor: selectedFontColor,
@@ -95,8 +83,14 @@ export const ArticleParamsForm = ({ getpreferences }: props) => {
 			contentWidth: selectedContentWidth,
 		});
 	};
+
 	const resetPreferences = () => {
-		getpreferences(defaultArticleState);
+		setPreferences(defaultArticleState);
+		setSelectedFontFamily(defaultArticleState.fontFamilyOption);
+		setSelectedFontSize(defaultArticleState.fontSizeOption);
+		setSelectedFontColor(defaultArticleState.fontColor);
+		setSelectedBackgroundColor(defaultArticleState.backgroundColor);
+		setSelectedContentWidth(defaultArticleState.contentWidth);
 	};
 
 	return (
@@ -104,58 +98,49 @@ export const ArticleParamsForm = ({ getpreferences }: props) => {
 			<ArrowButton isOpen={isOpen} onClick={handlerOpen} />
 			<aside
 				ref={formRef}
-				className={`${styles.container} ${
-					isOpen ? styles.container_open : ''
-				}`}>
-				<form className={styles.form}>
+				className={clsx(styles.container, { [styles.container_open]: isOpen })}>
+				<form
+					className={styles.form}
+					onSubmit={sendPreferences}
+					onReset={resetPreferences}>
 					<Text as='h2' size={31} weight={800} uppercase>
 						задайте параметры
 					</Text>
 					<Select
 						options={fontFamilyOptions}
 						selected={selectedFontFamily}
-						onChange={handleFontFamilyChange}
+						onChange={setSelectedFontFamily}
 						title='Шрифт'
 					/>
 					<RadioGroup
 						options={fontSizeOptions}
 						selected={selectedFontSize}
-						onChange={handleFontSizeChange}
+						onChange={setSelectedFontSize}
 						name={'fontSize'}
 						title={'Размер шрифта'}
 					/>
 					<Select
 						options={fontColors}
 						selected={selectedFontColor}
-						onChange={handleFontColorChange}
+						onChange={setSelectedFontColor}
 						title={'Цвет шрифта'}
 					/>
 					<Separator />
 					<Select
 						options={backgroundColors}
 						selected={selectedBackgroundColor}
-						onChange={handleBackgroundColorChange}
+						onChange={setSelectedBackgroundColor}
 						title={'Цвет фона'}
 					/>
 					<Select
 						options={contentWidthArr}
 						selected={selectedContentWidth}
-						onChange={handleContentWidthChange}
+						onChange={setSelectedContentWidth}
 						title={'Ширина контента'}
 					/>
 					<div className={styles.bottomContainer}>
-						<Button
-							title='Сбросить'
-							htmlType='reset'
-							type='clear'
-							onClick={resetPreferences}
-						/>
-						<Button
-							title='Применить'
-							htmlType='submit'
-							type='apply'
-							onClick={sendPreferences}
-						/>
+						<Button title='Сбросить' htmlType='reset' type='clear' />
+						<Button title='Применить' htmlType='submit' type='apply' />
 					</div>
 				</form>
 			</aside>

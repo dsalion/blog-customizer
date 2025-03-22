@@ -5,7 +5,6 @@ import clsx from 'clsx';
 import { Article } from './components/article/Article';
 import { ArticleParamsForm } from './components/article-params-form/ArticleParamsForm';
 import { defaultArticleState } from './constants/articleProps';
-import type { ArticleStateType } from 'src/constants/articleProps';
 
 import './styles/index.scss';
 import styles from './styles/index.module.scss';
@@ -15,10 +14,6 @@ const root = createRoot(domNode);
 
 const App = () => {
 	const [preferences, setPreferences] = useState(defaultArticleState);
-
-	const getPreferences = (pref: ArticleStateType) => {
-		setPreferences(pref);
-	};
 
 	return (
 		<main
@@ -32,7 +27,7 @@ const App = () => {
 					'--bg-color': preferences.backgroundColor.value,
 				} as CSSProperties
 			}>
-			<ArticleParamsForm getpreferences={getPreferences} />
+			<ArticleParamsForm setPreferences={setPreferences} />
 			<Article />
 		</main>
 	);
